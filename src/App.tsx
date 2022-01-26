@@ -1,19 +1,45 @@
 import React from 'react';
-import './App.css';
+import { serverGoods } from './api/goods';
+import { GoodsList } from './components/GoodsList';
+import { getColorById } from './helpers';
+import { AddGoodForm } from './components/AddGoodForm';
 
-import users from './api/users';
+// 1 - Отобразить список товаров
+// 2 - Добавление нового товара
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <h1>Add todo form</h1>
+const goodsWithColors: GoodWithColor[] = serverGoods.map(
+  (good) => ({
+    ...good,
+    color: getColorById(good.colorId) || null,
+  }),
+);
 
-      <p>
-        <span>Users: </span>
-        {users.length}
-      </p>
-    </div>
-  );
+type Props = {};
+type State = {
+  goods: GoodWithColor[];
 };
 
-export default App;
+export class App extends React.Component<Props, State> {
+  state: State = {
+    goods: [...goodsWithColors],
+  };
+
+  addNewGood = (newGood: GoodWithColor) => {
+    this.setState((prevState) => ({
+      goods: [...prevState.goods, newGood],
+    }));
+  };
+
+  render() {
+    const { goods } = this.state;
+
+    return (
+      <div>
+        <h1>Add good form</h1>
+
+        <AddGoodForm goods={goods} addNewGood={this.addNewGood} />
+        <GoodsList goods={goods} />
+      </div>
+    );
+  }
+}
